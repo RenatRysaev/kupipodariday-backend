@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany, ManyToMany } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { Length, IsEmail, IsUrl } from 'class-validator';
 
 import { Shared } from '../../shared';

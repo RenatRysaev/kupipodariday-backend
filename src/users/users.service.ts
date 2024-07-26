@@ -13,23 +13,28 @@ export class UsersService {
     private readonly userRepository: Repository<CreateUserDto>,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
-    return this.userRepository.save(createUserDto);
+  async create(createUserDto: CreateUserDto) {
+    const user = await this.userRepository.create(createUserDto);
+    return this.userRepository.save(user);
   }
 
-  findAll() {
-    return this.userRepository.find();
+  async findAll() {
+    const users = await this.userRepository.find();
+    return users;
   }
 
-  findOne(id: string) {
-    return this.userRepository.findOneBy({ id });
+  async findOne(by: Partial<Pick<CreateUserDto, 'id' | 'username'>>) {
+    const user = await this.userRepository.findOneBy(by);
+    return user;
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return this.userRepository.update({ id }, updateUserDto);
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const updatedUser = await this.userRepository.update({ id }, updateUserDto);
+    return updatedUser;
   }
 
-  remove(id: string) {
-    return this.userRepository.delete({ id });
+  async remove(id: string) {
+    const removedUser = await this.userRepository.delete({ id });
+    return removedUser;
   }
 }
