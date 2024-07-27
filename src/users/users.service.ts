@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -36,7 +36,19 @@ export class UsersService {
     return user;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update({
+    executor,
+    id,
+    updateUserDto,
+  }: {
+    executor: CreateUserDto;
+    id: string;
+    updateUserDto: UpdateUserDto;
+  }) {
+    if (String(executor.id) !== String(id)) {
+      throw new ForbiddenException();
+    }
+
     let preparedUpdateUserDto = updateUserDto;
 
     if (updateUserDto.password) {
