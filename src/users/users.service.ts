@@ -36,6 +36,14 @@ export class UsersService {
     return user;
   }
 
+  async findMany(nameOrEmail: string) {
+    const users = await this.userRepository.find({
+      where: [{ email: nameOrEmail }, { username: nameOrEmail }],
+    });
+
+    return users;
+  }
+
   async update({
     executor,
     id,

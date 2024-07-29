@@ -1,5 +1,6 @@
 import { Entity, Column, OneToMany } from 'typeorm';
 import { Length, IsEmail, IsUrl } from 'class-validator';
+import { Exclude } from 'class-transformer';
 
 import { Shared } from '../../shared';
 import { Wish } from '../../wishes/entities/wish.entity';
@@ -25,6 +26,7 @@ export class User extends Shared.BaseColumns {
   email: string;
 
   @Column()
+  @Exclude()
   password: string;
 
   @OneToMany(() => Wish, (wish) => wish.owner)

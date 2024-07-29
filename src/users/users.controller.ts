@@ -8,6 +8,7 @@ import {
   Param,
   Delete,
   Req,
+  Query,
 } from '@nestjs/common';
 
 import { JwtGuard } from '../auth/jwt/jwt.guard';
@@ -27,8 +28,10 @@ export class UsersController {
 
   @UseGuards(JwtGuard)
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Query('nameOrEmail') nameOrEmail: string) {
+    return nameOrEmail
+      ? this.usersService.findMany(nameOrEmail)
+      : this.usersService.findAll();
   }
 
   @UseGuards(JwtGuard)
