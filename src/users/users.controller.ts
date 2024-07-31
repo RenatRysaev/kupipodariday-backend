@@ -36,14 +36,13 @@ export class UsersController {
 
   @UseGuards(JwtGuard)
   @Get(':id')
-  public async getProfile(@Param('id') id: string) {
-    console.log('id', id);
+  getProfile(@Param('id') id: string) {
     return this.usersService.findOne({ id });
   }
 
   @UseGuards(JwtGuard)
   @Patch(':id')
-  public async updateProfile(
+  updateProfile(
     @Req() reguest,
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -55,7 +54,9 @@ export class UsersController {
 
   @UseGuards(JwtGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
+  remove(@Req() reguest, @Param('id') id: string) {
+    const user = reguest.user;
+
+    return this.usersService.remove({ executor: user, id });
   }
 }

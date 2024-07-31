@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Req,
 } from '@nestjs/common';
 import { WishesService } from './wishes.service';
 import { CreateWishDto } from './dto/create-wish.dto';
@@ -31,12 +32,20 @@ export class WishesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateWishDto: UpdateWishDto) {
-    return this.wishesService.update(id, updateWishDto);
+  update(
+    @Req() reguest,
+    @Param('id') id: string,
+    @Body() updateWishDto: UpdateWishDto,
+  ) {
+    const user = reguest.user;
+
+    return this.wishesService.update({ id, executor: user, updateWishDto });
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.wishesService.remove(id);
+  remove(@Req() reguest, @Param('id') id: string) {
+    const user = reguest.user;
+
+    return this.wishesService.remove({ id, executor: user });
   }
 }

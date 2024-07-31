@@ -77,7 +77,11 @@ export class UsersService {
     return updatedUser;
   }
 
-  async remove(id: string) {
+  async remove({ executor, id }: { executor: CreateUserDto; id: string }) {
+    if (String(executor.id) !== String(id)) {
+      throw new ForbiddenException();
+    }
+
     const removedUser = await this.userRepository.delete({ id });
     return removedUser;
   }
