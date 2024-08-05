@@ -15,14 +15,14 @@ import { UpdateWishlistDto } from './dto/update-wishlist.dto';
 export class WishlistsController {
   constructor(private readonly wishlistsService: WishlistsService) {}
 
-  @Post()
-  create(@Body() createWishlistDto: CreateWishlistDto) {
-    return this.wishlistsService.create(createWishlistDto);
-  }
-
   @Get()
   findAll() {
     return this.wishlistsService.findAll();
+  }
+
+  @Post()
+  create(@Body() createWishlistDto: CreateWishlistDto) {
+    return this.wishlistsService.create(createWishlistDto);
   }
 
   @Get(':id')
