@@ -6,57 +6,60 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   Req,
-  Query,
 } from '@nestjs/common';
 
 import { JwtGuard } from '../auth/jwt/jwt.guard';
 
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @UseGuards(JwtGuard)
+  @Get('me')
+  getProfile(@Req() reguest) {
+    const user = reguest.user;
+    return this.usersService.findOne({ id: user.id });
   }
 
   @UseGuards(JwtGuard)
-  @Get()
-  findAll(@Query('nameOrEmail') nameOrEmail: string) {
-    return nameOrEmail
-      ? this.usersService.findMany(nameOrEmail)
-      : this.usersService.findAll();
-  }
-
-  @UseGuards(JwtGuard)
-  @Get(':id')
-  getProfile(@Param('id') id: string) {
-    return this.usersService.findOne({ id });
-  }
-
-  @UseGuards(JwtGuard)
-  @Patch(':id')
-  updateProfile(
-    @Req() reguest,
-    @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
+  @Patch('me')
+  updateProfile(@Req() reguest, @Body() updateUserDto: UpdateUserDto) {
     const user = reguest.user;
 
-    return this.usersService.update({ executor: user, id, updateUserDto });
+    return this.usersService.update({
+      id: user.id,
+      updateUserDto,
+    });
   }
 
   @UseGuards(JwtGuard)
-  @Delete(':id')
-  remove(@Req() reguest, @Param('id') id: string) {
+  @Get('me/wishes')
+  getMyWishes(@Req() reguest) {
     const user = reguest.user;
 
-    return this.usersService.remove({ executor: user, id });
+    return user;
+  }
+
+  @UseGuards(JwtGuard)
+  @Get(':username')
+  getUser(@Param() username) {
+    return this.usersService.findOne({ username });
+  }
+
+  @UseGuards(JwtGuard)
+  @Get(':username/wishes')
+  getUserWishes(@Req() reguest, @Param() username) {
+    const user = reguest.user;
+    return this.usersService.getUserWishes(username);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('find')
+  findAll(@Body() query: string) {
+    return this.usersService.findMany(query);
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -26,11 +26,6 @@ export class UsersService {
     return this.userRepository.save(user);
   }
 
-  async findAll() {
-    const users = await this.userRepository.find();
-    return users;
-  }
-
   async findOne(by: Partial<Pick<CreateUserDto, 'id' | 'username'>>) {
     const user = await this.userRepository.findOneBy(by);
     return user;
@@ -45,18 +40,12 @@ export class UsersService {
   }
 
   async update({
-    executor,
     id,
     updateUserDto,
   }: {
-    executor: CreateUserDto;
     id: string;
     updateUserDto: UpdateUserDto;
   }) {
-    if (String(executor.id) !== String(id)) {
-      throw new ForbiddenException();
-    }
-
     let preparedUpdateUserDto = updateUserDto;
 
     if (updateUserDto.password) {
@@ -77,12 +66,8 @@ export class UsersService {
     return updatedUser;
   }
 
-  async remove({ executor, id }: { executor: CreateUserDto; id: string }) {
-    if (String(executor.id) !== String(id)) {
-      throw new ForbiddenException();
-    }
-
-    const removedUser = await this.userRepository.delete({ id });
-    return removedUser;
+  async getUserWishes(username: string) {
+    const user = await this.userRepository.findOneBy({ username });
+    return user.wishes;
   }
 }
