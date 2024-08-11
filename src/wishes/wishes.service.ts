@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, MaxKey } from 'typeorm';
 
 import { CreateWishDto } from './dto/create-wish.dto';
 import { UpdateWishDto } from './dto/update-wish.dto';
@@ -14,19 +14,42 @@ export class WishesService {
     private readonly wishRepository: Repository<CreateWishDto>,
   ) {}
 
-  create(createWishDto: CreateWishDto) {
-    return this.wishRepository.save(createWishDto);
+  async create({
+    executor,
+    createWishDto,
+  }: {
+    executor: CreateUserDto;
+    createWishDto: CreateWishDto;
+  }) {
+    const createdWish = await this.wishRepository.save({
+      ...createWishDto,
+      owner: executor.id,
+    });
+    return createdWish;
   }
 
-  findAll() {
-    return this.wishRepository.find();
+  async findOne(id: string) {
+    const wish = await this.wishRepository.findOneBy({ id });
+    return wish;
   }
 
-  findOne(id: string) {
-    return this.wishRepository.findOneBy({ id });
+  async findLastWish() {
+    const lastWish = await this.wishRepository.find({
+      take: 1,
+      order: { id: 'DESC', name: 'DESC' },
+    });
+    return lastWish;
   }
 
-  update({
+  async findTheMostPopularWish() {
+    const maxCopied = await this.wishRepository.maximum('copied');
+    const mostPopularWish = await this.wishRepository.findOne({
+      where: { copied: maxCopied },
+    });
+    return mostPopularWish;
+  }
+
+  async update({
     executor,
     id,
     updateWishDto,
@@ -35,18 +58,24 @@ export class WishesService {
     id: string;
     updateWishDto: UpdateWishDto;
   }) {
-    if (String(executor.id) !== String(id)) {
+    const isWishBelongsToUser = executor.wishes.includes(id);
+
+    if (!isWishBelongsToUser) {
       throw new ForbiddenException();
     }
 
-    return this.wishRepository.update({ id }, updateWishDto);
+    const updatedWish = await this.wishRepository.update({ id }, updateWishDto);
+    return updatedWish;
   }
 
-  remove({ executor, id }: { executor: CreateUserDto; id: string }) {
-    if (String(executor.id) !== String(id)) {
+  async remove({ executor, id }: { executor: CreateUserDto; id: string }) {
+    const isWishBelongsToUser = executor.wishes.includes(id);
+
+    if (!isWishBelongsToUser) {
       throw new ForbiddenException();
     }
 
-    return this.wishRepository.delete({ id });
+    const deletedWish = await this.wishRepository.delete({ id });
+    return deletedWish;
   }
 }

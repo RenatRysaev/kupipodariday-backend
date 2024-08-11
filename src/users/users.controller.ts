@@ -19,16 +19,35 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @UseGuards(JwtGuard)
+  @Get('me/wishes')
+  getMyWishes(@Req() request) {
+    const user = request.user;
+    return this.usersService.getMyWishes(user.id);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get(':username')
+  getUser(@Param() params) {
+    return this.usersService.findOne({ username: params.username });
+  }
+
+  @UseGuards(JwtGuard)
+  @Get(':username/wishes')
+  getUserWishes(@Param() params) {
+    return this.usersService.getUserWishes(params.username);
+  }
+
+  @UseGuards(JwtGuard)
   @Get('me')
-  getProfile(@Req() reguest) {
-    const user = reguest.user;
+  getProfile(@Req() request) {
+    const user = request.user;
     return this.usersService.findOne({ id: user.id });
   }
 
   @UseGuards(JwtGuard)
   @Patch('me')
-  updateProfile(@Req() reguest, @Body() updateUserDto: UpdateUserDto) {
-    const user = reguest.user;
+  updateProfile(@Req() request, @Body() updateUserDto: UpdateUserDto) {
+    const user = request.user;
 
     return this.usersService.update({
       id: user.id,
@@ -37,29 +56,8 @@ export class UsersController {
   }
 
   @UseGuards(JwtGuard)
-  @Get('me/wishes')
-  getMyWishes(@Req() reguest) {
-    const user = reguest.user;
-
-    return user;
-  }
-
-  @UseGuards(JwtGuard)
-  @Get(':username')
-  getUser(@Param() username) {
-    return this.usersService.findOne({ username });
-  }
-
-  @UseGuards(JwtGuard)
-  @Get(':username/wishes')
-  getUserWishes(@Req() reguest, @Param() username) {
-    const user = reguest.user;
-    return this.usersService.getUserWishes(username);
-  }
-
-  @UseGuards(JwtGuard)
   @Post('find')
-  findAll(@Body() query: string) {
-    return this.usersService.findMany(query);
+  findAll(@Body() body) {
+    return this.usersService.findMany(body.query);
   }
 }

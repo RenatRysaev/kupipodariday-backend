@@ -27,7 +27,9 @@ export class UsersService {
   }
 
   async findOne(by: Partial<Pick<CreateUserDto, 'id' | 'username'>>) {
-    const user = await this.userRepository.findOneBy(by);
+    const user = await this.userRepository.findOne({
+      where: [{ id: by.id }, { username: by.id }],
+    });
     return user;
   }
 
@@ -58,16 +60,29 @@ export class UsersService {
       };
     }
 
-    const updatedUser = await this.userRepository.update(
-      { id },
-      preparedUpdateUserDto,
-    );
+    await this.userRepository.update({ id }, preparedUpdateUserDto);
 
+    const updatedUser = await this.userRepository.findOneBy({ id });
     return updatedUser;
   }
 
+  async getMyWishes(id: string) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: {
+        wishes: true,
+      },
+    });
+    return user.wishes;
+  }
+
   async getUserWishes(username: string) {
-    const user = await this.userRepository.findOneBy({ username });
+    const user = await this.userRepository.findOne({
+      where: { username },
+      relations: {
+        wishes: true,
+      },
+    });
     return user.wishes;
   }
 }

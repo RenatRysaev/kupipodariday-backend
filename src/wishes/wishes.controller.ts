@@ -7,7 +7,11 @@ import {
   Param,
   Delete,
   Req,
+  UseGuards,
 } from '@nestjs/common';
+
+import { JwtGuard } from '../auth/jwt/jwt.guard';
+
 import { WishesService } from './wishes.service';
 import { CreateWishDto } from './dto/create-wish.dto';
 import { UpdateWishDto } from './dto/update-wish.dto';
@@ -16,21 +20,33 @@ import { UpdateWishDto } from './dto/update-wish.dto';
 export class WishesController {
   constructor(private readonly wishesService: WishesService) {}
 
+  @UseGuards(JwtGuard)
   @Post()
-  create(@Body() createWishDto: CreateWishDto) {
-    return this.wishesService.create(createWishDto);
+  create(@Req() reguest, @Body() createWishDto: CreateWishDto) {
+    const user = reguest.user;
+    console.log('user', user);
+    return this.wishesService.create({ executor: user, createWishDto });
   }
 
-  @Get()
-  findAll() {
-    return this.wishesService.findAll();
+  @UseGuards(JwtGuard)
+  @Get('/last')
+  findLastWish() {
+    return this.wishesService.findLastWish();
   }
 
+  @UseGuards(JwtGuard)
+  @Get('/top')
+  findTheMostPopularWish() {
+    return this.wishesService.findTheMostPopularWish();
+  }
+
+  @UseGuards(JwtGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.wishesService.findOne(id);
   }
 
+  @UseGuards(JwtGuard)
   @Patch(':id')
   update(
     @Req() reguest,
@@ -42,6 +58,7 @@ export class WishesController {
     return this.wishesService.update({ id, executor: user, updateWishDto });
   }
 
+  @UseGuards(JwtGuard)
   @Delete(':id')
   remove(@Req() reguest, @Param('id') id: string) {
     const user = reguest.user;
