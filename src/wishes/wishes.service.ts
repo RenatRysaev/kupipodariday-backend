@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MaxKey } from 'typeorm';
+import { Repository } from 'typeorm';
 
 import { CreateWishDto } from './dto/create-wish.dto';
 import { UpdateWishDto } from './dto/update-wish.dto';
@@ -58,24 +58,28 @@ export class WishesService {
     id: string;
     updateWishDto: UpdateWishDto;
   }) {
-    const isWishBelongsToUser = executor.wishes.includes(id);
+    const isWishBelongsToUser = !!executor.wishes.find(
+      (wish) => String(wish.id) === String(id),
+    );
 
     if (!isWishBelongsToUser) {
       throw new ForbiddenException();
     }
 
-    const updatedWish = await this.wishRepository.update({ id }, updateWishDto);
-    return updatedWish;
+    await this.wishRepository.update({ id }, updateWishDto);
   }
 
   async remove({ executor, id }: { executor: CreateUserDto; id: string }) {
-    const isWishBelongsToUser = executor.wishes.includes(id);
+    const isWishBelongsToUser = !!executor.wishes.find(
+      (wish) => String(wish.id) === String(id),
+    );
 
     if (!isWishBelongsToUser) {
       throw new ForbiddenException();
     }
 
-    const deletedWish = await this.wishRepository.delete({ id });
-    return deletedWish;
+    const wishToDeleted = await this.wishRepository.findOne({ where: { id } });
+    await this.wishRepository.delete({ id });
+    return wishToDeleted;
   }
 }

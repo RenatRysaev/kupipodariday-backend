@@ -1,4 +1,5 @@
 import { Shared } from '../../shared';
+import { CreateWishDto } from '../../wishes/dto/create-wish.dto';
 
 export class CreateUserDto extends Shared.BaseDto {
   username: string;
@@ -6,7 +7,7 @@ export class CreateUserDto extends Shared.BaseDto {
   about: string;
   avatar: string;
   email: string;
-  wishes: string[];
+  wishes: CreateWishDto[];
   offers: string[];
   wishlists: string[];
 }

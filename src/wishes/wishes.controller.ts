@@ -22,8 +22,8 @@ export class WishesController {
 
   @UseGuards(JwtGuard)
   @Post()
-  create(@Req() reguest, @Body() createWishDto: CreateWishDto) {
-    const user = reguest.user;
+  create(@Req() request, @Body() createWishDto: CreateWishDto) {
+    const user = request.user;
     console.log('user', user);
     return this.wishesService.create({ executor: user, createWishDto });
   }
@@ -49,19 +49,22 @@ export class WishesController {
   @UseGuards(JwtGuard)
   @Patch(':id')
   update(
-    @Req() reguest,
+    @Req() request,
     @Param('id') id: string,
     @Body() updateWishDto: UpdateWishDto,
   ) {
-    const user = reguest.user;
+    const user = request.user;
+
+    console.log('id', id);
+    console.log('user', user);
 
     return this.wishesService.update({ id, executor: user, updateWishDto });
   }
 
   @UseGuards(JwtGuard)
   @Delete(':id')
-  remove(@Req() reguest, @Param('id') id: string) {
-    const user = reguest.user;
+  remove(@Req() request, @Param('id') id: string) {
+    const user = request.user;
 
     return this.wishesService.remove({ id, executor: user });
   }

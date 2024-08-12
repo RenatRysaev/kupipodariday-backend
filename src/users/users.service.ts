@@ -29,6 +29,9 @@ export class UsersService {
   async findOne(by: Partial<Pick<CreateUserDto, 'id' | 'username'>>) {
     const user = await this.userRepository.findOne({
       where: [{ id: by.id }, { username: by.id }],
+      relations: {
+        wishes: true,
+      },
     });
     return user;
   }
