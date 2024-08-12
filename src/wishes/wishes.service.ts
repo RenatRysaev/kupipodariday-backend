@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  NotFoundException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -81,5 +85,23 @@ export class WishesService {
     const wishToDeleted = await this.wishRepository.findOne({ where: { id } });
     await this.wishRepository.delete({ id });
     return wishToDeleted;
+  }
+
+  async copy({
+    executor,
+    wishId,
+  }: {
+    executor: CreateUserDto;
+    wishId: string;
+  }) {
+    const wishToCopy = await this.wishRepository.findOne({
+      where: { id: wishId },
+    });
+
+    if (!wishToCopy) {
+      throw new NotFoundException();
+    }
+
+    await this.wishRepository.save({ ...wishToCopy, owner: executor.id });
   }
 }

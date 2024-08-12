@@ -24,7 +24,6 @@ export class WishesController {
   @Post()
   create(@Req() request, @Body() createWishDto: CreateWishDto) {
     const user = request.user;
-    console.log('user', user);
     return this.wishesService.create({ executor: user, createWishDto });
   }
 
@@ -41,6 +40,13 @@ export class WishesController {
   }
 
   @UseGuards(JwtGuard)
+  @Post('/copy')
+  copy(@Req() request, @Body() body) {
+    const user = request.user;
+    return this.wishesService.copy({ executor: user, wishId: body.id });
+  }
+
+  @UseGuards(JwtGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.wishesService.findOne(id);
@@ -54,10 +60,6 @@ export class WishesController {
     @Body() updateWishDto: UpdateWishDto,
   ) {
     const user = request.user;
-
-    console.log('id', id);
-    console.log('user', user);
-
     return this.wishesService.update({ id, executor: user, updateWishDto });
   }
 
@@ -65,7 +67,6 @@ export class WishesController {
   @Delete(':id')
   remove(@Req() request, @Param('id') id: string) {
     const user = request.user;
-
     return this.wishesService.remove({ id, executor: user });
   }
 }
