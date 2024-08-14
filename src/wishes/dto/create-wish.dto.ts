@@ -1,13 +1,31 @@
-import { Shared } from '../../shared';
+import {
+  IsUrl,
+  Length,
+  IsString,
+  IsNumber,
+  Min,
+  IsOptional,
+} from 'class-validator';
 
-export class CreateWishDto extends Shared.BaseDto {
+export class CreateWishDto {
+  @IsString()
+  @Length(1, 250)
   name: string;
+
+  @IsString()
+  @IsUrl()
   link: string;
+
+  @IsString()
+  @IsUrl()
   image: string;
+
+  @IsNumber()
+  @Min(1000)
   price: number;
-  raised: number;
-  owner: string;
+
+  @IsString()
+  @Length(1, 1024)
+  @IsOptional()
   description: string;
-  offers: string[];
-  copied: number;
 }

@@ -1,8 +1,9 @@
-import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
-import { Length, IsUrl, IsDecimal } from 'class-validator';
+import { Entity, Column, ManyToOne, OneToMany, ManyToMany } from 'typeorm';
+import { Length, IsUrl, IsOptional, Min } from 'class-validator';
 
 import { Shared } from '../../shared';
 import { User } from '../../users/entities/user.entity';
+import { Wishlist } from '../../wishlists/entities/wishlist.entity';
 import { Offer } from '../../offers/entities/offer.entity';
 
 @Entity()
@@ -19,24 +20,27 @@ export class Wish extends Shared.BaseColumns {
   @IsUrl()
   image: string;
 
-  @Column()
-  @IsDecimal({ decimal_digits: '2' })
+  @Column('decimal')
+  @Min(1)
   price: number;
 
-  @Column()
-  @IsDecimal({ decimal_digits: '2' })
+  @Column('decimal', { default: 0 })
   raised: number;
+
+  @Column({ default: 'Пока нет описания' })
+  @Length(1, 1024)
+  @IsOptional()
+  description: string;
+
+  @Column({ default: 0 })
+  copied: number;
 
   @ManyToOne(() => User, (user) => user.wishes)
   owner: User;
 
-  @Column()
-  @Length(1, 1024)
-  description: string;
-
   @OneToMany(() => Offer, (offer) => offer.item)
   offers: Offer[];
 
-  @Column()
-  copied: number;
+  @ManyToMany(() => Wishlist, (wishlist) => wishlist.items)
+  wishlist: Wishlist[];
 }

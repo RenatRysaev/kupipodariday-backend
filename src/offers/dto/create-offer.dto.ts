@@ -1,8 +1,12 @@
-import { Shared } from '../../shared';
+import { IsBoolean, IsNumber } from 'class-validator';
 
-export class CreateOfferDto extends Shared.BaseDto {
-  user: string;
-  item: string;
+export class CreateOfferDto {
+  @IsNumber()
   amount: number;
+
+  @IsBoolean()
   hidden: boolean;
+
+  @IsNumber()
+  itemId: number;
 }

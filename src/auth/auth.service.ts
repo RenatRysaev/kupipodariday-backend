@@ -2,33 +2,34 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
+import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
-import { CreateUserDto } from '../users/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
+    private userService: UsersService,
     private jwtService: JwtService,
   ) {}
 
-  public async validatePassword(username: string, password: string) {
-    const user = await this.usersService.findOne({ username });
-    const isMatchPasswords = await bcrypt.compare(password, user.password);
+  auth(user: User) {
+    const payload = { sub: user.id };
 
-    if (user && isMatchPasswords) {
-      const { password: userPassword, ...result } = user;
-      return result;
+    return { access_token: this.jwtService.sign(payload, { expiresIn: '7d' }) };
+  }
+
+  public async validatePassword(username: string, password: string) {
+    const user = await this.userService.getUserByName(username);
+
+    if (user) {
+      const isMatchPasswords = await bcrypt.compare(password, user.password);
+      if (isMatchPasswords) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { password: userPassword, ...result } = user;
+        return result;
+      }
     }
 
     return null;
-  }
-
-  public async signIn(user: CreateUserDto) {
-    const payload = { sub: user.username };
-
-    return {
-      access_token: this.jwtService.sign(payload, { expiresIn: '7d' }),
-    };
   }
 }

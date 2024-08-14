@@ -1,2 +1,2 @@
 export * from './base-columns';
-export * from './base-dto'
+export * from './base-dto';

@@ -1,5 +1,5 @@
-import { Entity, Column, OneToMany, ManyToOne } from 'typeorm';
-import { Length, IsUrl } from 'class-validator';
+import { IsOptional, IsUrl, Length } from 'class-validator';
+import { Entity, Column, ManyToOne, ManyToMany, JoinTable } from 'typeorm';
 
 import { Shared } from '../../shared';
 import { User } from '../../users/entities/user.entity';
@@ -11,17 +11,19 @@ export class Wishlist extends Shared.BaseColumns {
   @Length(1, 250)
   name: string;
 
-  @Column()
+  @Column({ default: 'Пока нет отписания' })
   @Length(0, 1500)
+  @IsOptional()
   description: string;
 
   @Column()
   @IsUrl()
   image: string;
 
-  @OneToMany(() => Wish, (wish) => wish.id)
+  @ManyToMany(() => Wish, (wish) => wish.wishlist)
+  @JoinTable()
   items: Wish[];
 
-  @ManyToOne(() => User, (user) => user.wishlists)
-  creator: User;
+  @ManyToOne(() => User, (user) => user.wishes)
+  owner: User;
 }

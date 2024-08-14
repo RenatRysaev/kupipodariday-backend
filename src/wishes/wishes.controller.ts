@@ -17,56 +17,46 @@ import { CreateWishDto } from './dto/create-wish.dto';
 import { UpdateWishDto } from './dto/update-wish.dto';
 
 @Controller('wishes')
+@UseGuards(JwtGuard)
 export class WishesController {
   constructor(private readonly wishesService: WishesService) {}
 
-  @UseGuards(JwtGuard)
   @Post()
-  create(@Req() request, @Body() createWishDto: CreateWishDto) {
-    const user = request.user;
-    return this.wishesService.create({ executor: user, createWishDto });
+  create(@Body() createWishDto: CreateWishDto, @Req() req) {
+    return this.wishesService.create(createWishDto, req.user.id);
   }
 
-  @UseGuards(JwtGuard)
-  @Get('/last')
-  findLastWish() {
-    return this.wishesService.findLastWish();
+  @Get('last')
+  getLastWishes() {
+    return this.wishesService.getLastWishes();
   }
 
-  @UseGuards(JwtGuard)
-  @Get('/top')
-  findTheMostPopularWish() {
-    return this.wishesService.findTheMostPopularWish();
+  @Get('top')
+  getTopWishes() {
+    return this.wishesService.getTopWishes();
   }
 
-  @UseGuards(JwtGuard)
-  @Post('/copy')
-  copy(@Req() request, @Body() body) {
-    const user = request.user;
-    return this.wishesService.copy({ executor: user, wishId: body.id });
-  }
-
-  @UseGuards(JwtGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.wishesService.findOne(id);
+  getOneWish(@Param('id') id: number) {
+    return this.wishesService.getOneWish(id);
   }
 
-  @UseGuards(JwtGuard)
   @Patch(':id')
   update(
-    @Req() request,
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() updateWishDto: UpdateWishDto,
+    @Req() req,
   ) {
-    const user = request.user;
-    return this.wishesService.update({ id, executor: user, updateWishDto });
+    return this.wishesService.update(id, updateWishDto, req.user.id);
   }
 
-  @UseGuards(JwtGuard)
   @Delete(':id')
-  remove(@Req() request, @Param('id') id: string) {
-    const user = request.user;
-    return this.wishesService.remove({ id, executor: user });
+  remove(@Param('id') id: number, @Req() req) {
+    return this.wishesService.remove(id, req.user.id);
+  }
+
+  @Post(':id/copy')
+  copy(@Param('id') id: number, @Req() req) {
+    return this.wishesService.copy(id, req.user.id);
   }
 }
