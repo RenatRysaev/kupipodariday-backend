@@ -1,5 +1,6 @@
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ClassSerializerInterceptor, Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppController } from './app.controller';
@@ -16,15 +17,23 @@ import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'student',
-      password: 'student',
-      database: 'kupipodariday',
-      entities: [UserEntity, WishEntity, WishlistEntity, OfferEntity],
-      synchronize: true,
+    ConfigModule.forRoot({
+      envFilePath: ['.env.testing', '.env.development', '.env'],
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('DATABASE_HOST'),
+        port: +configService.get('DATABASE_PORT'),
+        username: configService.get('DATABASE_USERNAME'),
+        password: configService.get('DATABASE_PASSWORD'),
+        database: configService.get('DATABASE_NAME'),
+        entities: [UserEntity, WishEntity, WishlistEntity, OfferEntity],
+        synchronize: true,
+      }),
     }),
     UsersModule,
     WishesModule,
